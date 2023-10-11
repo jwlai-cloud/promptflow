@@ -381,17 +381,9 @@ class FlowOperations:
         if format not in ["docker"]:
             raise ValueError(f"Unsupported export format: {format}")
 
-        if variant:
-            tuning_node, node_variant = parse_variant(variant)
-        else:
-            tuning_node, node_variant = None, None
-
+        tuning_node, node_variant = parse_variant(variant) if variant else (None, None)
         flow_only = kwargs.pop("flow_only", False)
-        if flow_only:
-            output_flow_dir = output_dir
-        else:
-            output_flow_dir = output_dir / "flow"
-
+        output_flow_dir = output_dir if flow_only else output_dir / "flow"
         new_flow_dag_path = self._build_flow(
             flow_dag_path=flow.flow_dag_path,
             output=output_flow_dir,
@@ -514,11 +506,11 @@ class FlowOperations:
 
         flow_tools_meta = flow_tools.pop("code", {})
 
-        tools_errors = {}
         nodes_with_error = [node_name for node_name, message in flow_tools_meta.items() if isinstance(message, str)]
-        for node_name in nodes_with_error:
-            tools_errors[node_name] = flow_tools_meta.pop(node_name)
-
+        tools_errors = {
+            node_name: flow_tools_meta.pop(node_name)
+            for node_name in nodes_with_error
+        }
         flow_tools["code"] = flow_tools_meta
 
         return flow_tools, tools_errors

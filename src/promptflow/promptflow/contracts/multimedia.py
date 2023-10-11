@@ -39,9 +39,7 @@ class Image(PFBytes):
 
     def get_extension(self):
         ext = self._mime_type.split("/")[-1]
-        if ext == "*":
-            return "png"
-        return ext
+        return "png" if ext == "*" else ext
 
     def serialize(self):
         name = f"image_{self._hash}"
